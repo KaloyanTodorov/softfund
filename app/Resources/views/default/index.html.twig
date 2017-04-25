@@ -3,9 +3,14 @@
 {% block body %}
     <h2> Welcome to SoftFund</h2>
 
-    <a href="{{ url('project_index') }}">All projects</a>
+    <a href="{{ url('project_index') }}">All projects</a> |
+
     {% if is_granted('ROLE_USER') %}
      <a href="{{ path('project_new') }}">Create project</a>
+    {% endif %}
+
+    {% if is_granted('ROLE_ADMIN') %}
+        <a href="{{ url('admin_manage_projects') }}">Manage projects</a>
     {% endif %}
 
 {% endblock %}

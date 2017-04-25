@@ -65,6 +65,7 @@ class ProjectController extends Controller
 
             $project->setDateCreated(new \DateTime());
             $project->setDateUpdated(new \DateTime());
+            $project->setUser($this->getUser());
             $em = $this->getDoctrine()->getManager();
 
 
@@ -113,7 +114,7 @@ class ProjectController extends Controller
      */
     public function editAction(Request $request, Project $project)
     {
-        if($project->getUser()->getId() != $this->getUser()->getId()) {
+        if($project->getUser()->getId() != $this->getUser()->getId() && !$this->isGranted('ROLE_ADMIN', $this->getUser() )) {
             $this->get('session')->getFlashBag()->add('error', 'Only owners can edit their projects.');
             return $this->redirectToRoute('project_index');
         }
@@ -155,30 +156,19 @@ class ProjectController extends Controller
     /**
      * Deletes a project entity.
      *
-     * @Route("/{id}", name="project_delete")
-     * @Method("DELETE")
+     * @Route("/manage/projects/{id}/delete", name="admin_manage_project")
+     * @Method("GET")
      * @param Request $request
      * @param Project $project
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function deleteAction(Request $request, Project $project)
     {
-        if($project->getUser()->getId() != $this->getUser()->getId()) {
-
-            $this->get('session')->getFlashBag()->add('error', 'Only owners can delete their projects.');
-            return $this->redirectToRoute('project_index');
-        }
-
-        $form = $this->createDeleteForm($project);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
             $em = $this->getDoctrine()->getManager();
             $em->remove($project);
             $em->flush();
-        }
 
-        return $this->redirectToRoute('project_index');
+        return $this->redirectToRoute('admin_manage_project');
     }
 
     /**
@@ -195,5 +185,21 @@ class ProjectController extends Controller
             ->setMethod('DELETE')
             ->getForm()
         ;
+    }
+
+    /**
+     * @Route("/manage/projects/", name="admin_manage_projects")
+     */
+    public function manageProjectsAction()
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $projects = $em->getRepository('AppBundle\Entity\Project')->findAll();
+
+        return $this->render('project/manage.html.twig', array(
+            'projects' => $projects,
+            'user' => $this->getUser(),
+            'countries' => Intl::getRegionBundle()->getCountryNames(),
+        ));
     }
 }

@@ -43,6 +43,8 @@ class SecurityController extends Controller
             /** @var User $user */
             $user = $form->getData();
 
+            $user->setRoles([$user->getDefaultRole()]);
+
             $encrypter = $this->get('security.password_encoder');
 
             $user->setPassword(

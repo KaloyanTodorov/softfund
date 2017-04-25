@@ -15,6 +15,10 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class User implements UserInterface
 {
+    const ROLE_USER = 'ROLE_USER';
+    const ROLE_ADMIN = 'ROLE_ADMIN';
+    const ROLE_SUPER_ADMIN = 'ROLE_SUPER_ADMIN';
+
     /**
      * @var int
      *
@@ -62,6 +66,12 @@ class User implements UserInterface
      * @ORM\OneToMany(targetEntity="AppBundle\Entity\Project", mappedBy="user")
      */
     private $projects;
+
+    /**
+     * @var
+     * @ORM\Column(name="role", type="string", length=255, )
+     */
+    private $role;
 
 
     /**
@@ -164,7 +174,7 @@ class User implements UserInterface
      */
     public function getRoles()
     {
-        return ['ROLE_USER'];
+        return explode(',', $this->getRole());
     }
 
     /**
@@ -227,6 +237,35 @@ class User implements UserInterface
     public function addProject($project)
     {
         $this->getProjects()->add($project);
+    }
+
+    public function getDefaultRole()
+    {
+        return self::ROLE_USER;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getRole()
+    {
+        return $this->role;
+    }
+
+    /**
+     * @param mixed $role
+     */
+    public function setRole($role)
+    {
+        $this->role = $role;
+    }
+
+    /**
+     * @param array $roles
+     */
+    public function setRoles($roles)
+    {
+        $this->setRole(implode(',', $roles));
     }
 
 }
