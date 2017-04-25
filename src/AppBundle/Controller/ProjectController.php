@@ -35,6 +35,7 @@ class ProjectController extends Controller
 
         return $this->render('project/index.html.twig', array(
             'projects' => $projects,
+            'user' => $this->getUser(),
             'countries' => Intl::getRegionBundle()->getCountryNames(),
         ));
     }
@@ -53,7 +54,7 @@ class ProjectController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
             /**@var UploadedFile $file */
-            $file = $project->getImage();
+            $file = $project->getImageForm();
 
             $filename = md5($project->getTitle().''.$project->getDateCreated()) . $file->getFileInfo()->getExtension();
             $file->move(
@@ -69,6 +70,8 @@ class ProjectController extends Controller
 
             $em->persist($project);
             $em->flush();
+
+            $this->get('session')->getFlashBag()->add('success', 'New project was created.');
 
             return $this->redirectToRoute('project_show', array('id' => $project->getId()));
         }
@@ -95,7 +98,7 @@ class ProjectController extends Controller
         return $this->render('project/show.html.twig', array(
             'project' => $project,
             'delete_form' => $deleteForm->createView(),
-             'countries' => Intl::getRegionBundle()->getCountryNames(),
+            'countries' => Intl::getRegionBundle()->getCountryNames(),
         ));
     }
 
@@ -104,9 +107,17 @@ class ProjectController extends Controller
      *
      * @Route("/{id}/edit", name="project_edit")
      * @Method({"GET", "POST"})
+     * @param Request $request
+     * @param Project $project
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
      */
     public function editAction(Request $request, Project $project)
     {
+        if($project->getUser()->getId() != $this->getUser()->getId()) {
+            $this->get('session')->getFlashBag()->add('error', 'Only owners can edit their projects.');
+            return $this->redirectToRoute('project_index');
+        }
+
         $deleteForm = $this->createDeleteForm($project);
         $editForm = $this->createForm('AppBundle\Form\ProjectType', $project);
         $editForm->handleRequest($request);
@@ -114,9 +125,10 @@ class ProjectController extends Controller
         if ($editForm->isSubmitted() && $editForm->isValid()) {
             $project->setDateUpdated(new \DateTime());
 
-            if($project->getImage() instanceof UploadedFile) {
+            if($project->getImageForm() instanceof UploadedFile) {
+
                 /**@var UploadedFile $file */
-                $file = $project->getImage();
+                $file = $project->getImageForm();
 
                 $filename = md5($project->getTitle().''.$project->getDateCreated()->format('Y/m/d H:i:s')) . $file->getFileInfo()->getExtension();
                 $file->move(
@@ -128,7 +140,9 @@ class ProjectController extends Controller
 
             $this->getDoctrine()->getManager()->flush();
 
-            return $this->redirectToRoute('project_edit', array('id' => $project->getId()));
+            $this->get('session')->getFlashBag()->add('success', 'Project is edited successfully.');
+
+            return $this->redirectToRoute('project_index');
         }
 
         return $this->render('project/edit.html.twig', array(
@@ -143,9 +157,18 @@ class ProjectController extends Controller
      *
      * @Route("/{id}", name="project_delete")
      * @Method("DELETE")
+     * @param Request $request
+     * @param Project $project
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function deleteAction(Request $request, Project $project)
     {
+        if($project->getUser()->getId() != $this->getUser()->getId()) {
+
+            $this->get('session')->getFlashBag()->add('error', 'Only owners can delete their projects.');
+            return $this->redirectToRoute('project_index');
+        }
+
         $form = $this->createDeleteForm($project);
         $form->handleRequest($request);
 

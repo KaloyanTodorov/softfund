@@ -27,7 +27,7 @@ class ProjectType extends AbstractType
                 'choices' => array_flip(Intl::getRegionBundle()->getCountryNames()),
 
             ])
-            ->add('image', FileType::class, [
+            ->add('image_form', FileType::class, [
                 'data_class' => null,
                 'required' => false
                 ])

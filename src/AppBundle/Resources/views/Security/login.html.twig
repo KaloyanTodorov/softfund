@@ -2,6 +2,8 @@
     <div>{{ error.messageKey|trans(error.messageData, 'security') }}</div>
 {% endif %}
 
+<a href=" {{ path('user_register') }}">Register</a><br/>
+
 <form action="{{ path('user_login') }}" method="POST">
     <label for="username">Username</label>
     <input type="text" id="username" name="_username" value="{{ last_username }}" />

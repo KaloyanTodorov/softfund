@@ -26,6 +26,8 @@ security:
                 provider: user_provider
                 login_path: user_login
                 check_path: user_login
+            logout:
+                path: user_logout
 
     access_control:
         - { path: ^/register , roles: IS_AUTHENTICATED_ANONYMOUSLY }

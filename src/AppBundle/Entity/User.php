@@ -2,6 +2,7 @@
 
 namespace AppBundle\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -55,6 +56,12 @@ class User implements UserInterface
      * @Assert\Length(min="4")
      */
     private $password_raw;
+
+    /**
+     * @var ArrayCollection|Project[]
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Project", mappedBy="user")
+     */
+    private $projects;
 
 
     /**
@@ -198,6 +205,29 @@ class User implements UserInterface
         $this->password_raw = $password_raw;
     }
 
+    /**
+     * @return ArrayCollection|Project[]
+     */
+    public function getProjects()
+    {
+        return $this->projects;
+    }
+
+    /**
+     * @param $projects
+     */
+    public function setProjects($projects)
+    {
+        $this->projects = $projects;
+    }
+
+    /**
+     * @param Project $project
+     */
+    public function addProject($project)
+    {
+        $this->getProjects()->add($project);
+    }
 
 }
 

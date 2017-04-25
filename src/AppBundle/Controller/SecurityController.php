@@ -8,6 +8,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 
 class SecurityController extends Controller
 {
@@ -53,12 +54,22 @@ class SecurityController extends Controller
             $em->persist($user);
             $em->flush();
 
-            return $this->redirectToRoute('user_login');
+            $token = new UsernamePasswordToken($user, null, 'main', $user->getRoles());
+            $this->get('security.token_storage')->setToken($token);
+            return $this->redirectToRoute('homepage');
 
         }
 
         return [
             'form' => $form->createView()
         ];
+    }
+
+    /**
+     * @Route("/logout", name="user_logout")
+     */
+    public function logoutActon()
+    {
+
     }
 }

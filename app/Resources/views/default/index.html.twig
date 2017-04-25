@@ -1,8 +1,9 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    Welcome to SoftFund
+    <h2> Welcome to SoftFund</h2>
 
+    <a href="{{ url('project_index') }}">All projects</a>
     {% if is_granted('ROLE_USER') %}
      <a href="{{ path('project_new') }}">Create project</a>
     {% endif %}

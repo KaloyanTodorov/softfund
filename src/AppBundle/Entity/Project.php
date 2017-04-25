@@ -53,10 +53,13 @@ class Project
      * @var string
      *
      * @ORM\Column(name="image", type="string", length=255, nullable=true)
-     * @Assert\Image(mimeTypes={"image/png", "image/jpg"})
-     * @Assert\Image(maxSize="2M")
      */
     private $image;
+    /**
+     * @Assert\Image(mimeTypes={"image/png", "image/jpeg"})
+     * @Assert\Image(maxSize="2M")
+     */
+    private $image_form;
 
     /**
      * @var int
@@ -88,6 +91,12 @@ class Project
      * @ORM\Column(name="date_updated", type="datetime")
      */
     private $dateUpdated;
+
+    /**
+     *  @ORM\ManyToOne(targetEntity="AppBundle\Entity\User", inversedBy="projects")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
+     */
+    private $user;
 
 
     /**
@@ -293,5 +302,38 @@ class Project
     {
         return $this->dateUpdated;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getImageForm()
+    {
+        return $this->image_form;
+    }
+
+    /**
+     * @param mixed $image_form
+     */
+    public function setImageForm($image_form)
+    {
+        $this->image_form = $image_form;
+    }
+
+    /**
+     * @return User
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
+     * @param User $user
+     */
+    public function setUser($user)
+    {
+        $this->user = $user;
+    }
+
 }
 
